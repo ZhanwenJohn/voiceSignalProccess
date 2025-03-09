@@ -23,6 +23,7 @@ grid on;
 
 %% 显示基本参数
 fprintf('采样率: %d Hz\n', fs);
+fprintf('采样率: %d Hz\n', fs);
 fprintf('信号长度: %d 样本点\n', signal_length);
 fprintf('音频时长: %.2f 秒\n', duration);
 fprintf('最大振幅: %.4f\n', max_amplitude);
