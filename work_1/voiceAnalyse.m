@@ -27,3 +27,5 @@ fprintf('信号长度: %d 样本点\n', signal_length);
 fprintf('音频时长: %.2f 秒\n', duration);
 fprintf('最大振幅: %.4f\n', max_amplitude);
 fprintf('均方根振幅: %.4f\n', rms_amplitude);
+
+
