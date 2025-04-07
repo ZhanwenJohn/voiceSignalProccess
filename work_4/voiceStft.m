@@ -14,7 +14,7 @@ frame_shift = 64;      % 帧移
 
 %% 分帧处理
 fn = fix((length(y) - frame_length) / frame_shift) + 1;   % 计算帧数
-frame_time = (((1:fn)-1)*frame_shift + frame_length/2)/fs;% 计算每帧对应的时间
+frame_time = (((1:fn)-1)*frame_shift + frame_length/2)/fs; % 每帧中心对应的时间（秒）
 frames = zeros(frame_length, fn);                         % 预分配存储空间
 
 for i = 1:fn
@@ -25,33 +25,44 @@ end
 
 %% 计算 Hanning 窗
 hanning_win = hanning(frame_length); % 计算 Hanning 窗
-
 for i = 1:fn
-    frames(:, i) = frames(:, i) .* hanning_win; % 加窗
+    frames(:, i) = frames(:, i) .* hanning_win; % 每帧加窗
 end
 
-%% 计算短时傅里叶变换（STFT）
+%% 计算短时傅里叶变换
 fft_frames = fft(frames);           % 对每一帧进行 FFT
-
 frame_length2 = floor(frame_length/2) + 1;
-S = fft_frames(1:frame_length2, :); % 取每帧 FFT 的前半部分（直流到Nyquist）
+S = fft_frames(1:frame_length2, :); % 取每帧 FFT 的前半部分
 
-freq = (0:frame_length2-1)*fs/frame_length; % 构造频率轴（单位 Hz）
+freq = (0:frame_length2-1)*fs/frame_length;  % 构造频率轴（Hz）
 
-magS = abs(S);                      % 计算幅度谱，并转换为dB（加上 eps 避免对数为负无穷）
-magS_db = 20*log10(magS + eps);
+magS = abs(S);                      % 计算幅度谱
+magS_db = 20*log10(magS + eps);     % 转换为 dB 单位
 
-%% 选择一帧进行绘制（波形图形式显示幅度谱）
-frame_idx = 100;
+P = abs(S).^2;                      % 计算功率谱
+P_db = 10*log10(P + eps);           % 对功率谱转换为dB
+
+frame_idx = 105;
 if frame_idx > fn
     frame_idx = fn;
 end
+
+%% 绘制单帧幅度谱
 mag_spec = magS_db(:, frame_idx);
 
 figure;
-plot(freq, mag_spec, 'b-', 'LineWidth', 1.5);
+plot(freq, mag_spec, 'b-');
 xlabel('频率 (Hz)');
 ylabel('幅度 (dB)');
 title(sprintf('第 %d 帧的幅度谱', frame_idx));
 grid on;
 
+%% 绘制单帧功率谱
+power_spec = P_db(:, frame_idx);
+
+figure;
+plot(freq, power_spec, 'b-');
+xlabel('频率 (Hz)');
+ylabel('功率 (dB)');
+title(sprintf('第 %d 帧的功率谱', frame_idx));
+grid on;

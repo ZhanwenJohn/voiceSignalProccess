@@ -8,12 +8,11 @@ filename = fullfile(path, file);
 [y, fs] = audioread(filename);
 y = y(:, 1); % 取单通道音频
 
-%% 计算短时能量
-% 设定帧参数
+%% 设定帧参数
 frame_length = 200;    % 帧长
 frame_shift = 80;      % 帧移
 
-% 分帧处理
+%% 分帧处理
 fn = fix((length(y) - frame_length) / frame_shift) + 1;   % 计算帧数
 frames = zeros(frame_length, fn);                         % 预分配存储空间
 
@@ -31,6 +30,7 @@ for i = 1:fn
     frames(:, i) = frames(:, i) .* hamming_win; % 加窗
 end
 
+%% 计算短时能量
 En = zeros(1, fn);
 for i = 1:fn
     frame = frames(:, i);
@@ -90,21 +90,21 @@ ylabel('幅值');
 grid on;
 
 % 短时能量
-subplot(4,1,2);
+subplot(4,1,3);
 plot(En);
 title('短时能量仿真分析');
 xlabel('帧数');
 ylabel('能量');
 
 % 短时自相关
-subplot(4,1,3);
+subplot(4,1,4);
 plot(y_corr);
 title('短时自相关分析');
 xlabel('自相关序号');
 ylabel('幅值');
 
 % AMDF算法
-subplot(4,1,4);
+subplot(4,1,2);
 plot(AMDF);
 title('AMDF算法分析');
 xlabel('滞后时间 (ms)');
