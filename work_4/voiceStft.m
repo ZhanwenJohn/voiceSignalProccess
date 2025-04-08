@@ -6,6 +6,7 @@ close all;
 [file, path] = uigetfile('*.wav', '选择WAV文件');
 filename = fullfile(path, file);
 [y, fs] = audioread(filename);
+time = (0:length(y)-1) / fs;
 y = y(:, 1); % 取单通道音频
 
 %% 设定帧参数
@@ -46,14 +47,14 @@ P_mean = mean(P, 1);
 figure;
 % 原始语音
 subplot(3,1,1);
-plot(y);
+plot(time, y);
 title('原始语音信号');
 xlabel('时间/s');
 ylabel('幅值');
 grid on;
 
 % 绘制短时幅度谱
-subplot(3,1,3);
+subplot(3,1,2);
 plot(freq, mag_db, 'b-');
 xlabel('频率 (Hz)');
 ylabel('幅度 (dB)');
@@ -61,7 +62,7 @@ title('短时幅度谱');
 grid on;
 
 % 绘制短时功率谱
-subplot(3, 1, 2);
+subplot(3, 1, 3);
 plot(T, P_mean, 'b-');
 xlabel('时间/s');
 ylabel('功率 (dB)');
