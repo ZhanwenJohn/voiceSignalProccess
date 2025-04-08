@@ -6,11 +6,12 @@ close all;
 [file, path] = uigetfile('*.wav', '选择WAV文件');
 filename = fullfile(path, file);
 [y, fs] = audioread(filename);
+time = (0:length(y)-1) / fs;
 y = y(:, 1); % 取单通道音频
 
 %% 设定帧参数
-frame_length = 256;    % 帧长
-frame_shift = 64;      % 帧移
+frame_length = 512;    % 帧长
+frame_shift = 128;      % 帧移
 
 %% 分帧处理
 fn = fix((length(y) - frame_length) / frame_shift) + 1;   % 计算帧数
@@ -29,40 +30,41 @@ for i = 1:fn
     frames(:, i) = frames(:, i) .* hanning_win; % 每帧加窗
 end
 
-%% 计算短时傅里叶变换
-fft_frames = fft(frames);           % 对每一帧进行 FFT
-frame_length2 = floor(frame_length/2) + 1;
-S = fft_frames(1:frame_length2, :); % 取每帧 FFT 的前半部分
+%% 计算短时幅度谱
+fft_frames = fft(frames, frame_length, 2);% 对每一帧进行 FFT
+mag_S = abs(fft_frames).^2 + eps;
+mag_mean = mean(mag_S, 1);
+mag_db = 20*log10(mag_mean(1:frame_length/2 + 1));
+freq = (0:frame_length/2)*fs/frame_length;
 
-freq = (0:frame_length2-1)*fs/frame_length;  % 构造频率轴（Hz）
+%% 计算短时功率谱
+[S, F, T] = spectrogram(y, frame_length, frame_shift, frame_length, fs);  % 短时傅里叶变换
+P = abs(S).^2;  
+P_mean = mean(P, 1);
 
-magS = abs(S);                      % 计算幅度谱
-magS_db = 20*log10(magS + eps);     % 转换为 dB 单位
 
-P = abs(S).^2;                      % 计算功率谱
-P_db = 10*log10(P + eps);           % 对功率谱转换为dB
-
-frame_idx = 105;
-if frame_idx > fn
-    frame_idx = fn;
-end
-
-%% 绘制单帧幅度谱
-mag_spec = magS_db(:, frame_idx);
-
+%% 绘制波形
 figure;
-plot(freq, mag_spec, 'b-');
-xlabel('频率 (Hz)');
-ylabel('幅度 (dB)');
-title(sprintf('第 %d 帧的幅度谱', frame_idx));
+% 原始语音
+subplot(3,1,1);
+plot(time, y);
+title('原始语音信号');
+xlabel('时间/s');
+ylabel('幅值');
 grid on;
 
-%% 绘制单帧功率谱
-power_spec = P_db(:, frame_idx);
-
-figure;
-plot(freq, power_spec, 'b-');
+% 绘制短时幅度谱
+subplot(3,1,2);
+plot(freq, mag_db, 'b-');
 xlabel('频率 (Hz)');
+ylabel('幅度 (dB)');
+title('短时幅度谱');
+grid on;
+
+% 绘制短时功率谱
+subplot(3, 1, 3);
+plot(T, P_mean, 'b-');
+xlabel('时间/s');
 ylabel('功率 (dB)');
-title(sprintf('第 %d 帧的功率谱', frame_idx));
+title('短时功率谱');
 grid on;
