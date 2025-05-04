@@ -44,8 +44,7 @@ end
 %% 绘制倒谱
 figure;
 plot(c);
-xlabel('帧数');
-ylabel('倒谱系数索引');
+xlabel('帧数');ylabel('倒谱系数索引');
 title('倒谱分析');
 grid on;
 
@@ -60,15 +59,19 @@ end
 
 % 绘制基音周期（F0）
 figure;
-%subplot(2,1,1);
-plot((1:fn) * frame_shift / fs, f0_estimates);
+
+subplot(3,1,1);
+plot((0:length(y)-1) / fs, y);
 xlabel('时间 (秒)');
-ylabel('基音频率 (Hz)');
+ylabel('幅度');
+title('原始语音信号');
+
+subplot(3,1,2);
+plot((1:fn) * frame_shift / fs, f0_estimates);
+xlabel('时间 (秒)');ylabel('基音频率 (Hz)');
 title('基音频率随时间变化');
 
 %% 共振峰频率估计
-% 共振峰频率可以通过倒谱的高阶系数估计
-% 选择倒谱的高阶部分，去除低阶倒谱（基音周期的部分）
 formant_estimates = zeros(3, fn); % 假设有3个共振峰
 
 for i = 1:fn
@@ -85,10 +88,9 @@ for i = 1:fn
 end
 
 % 绘制共振峰频率
-% subplot(2,1,2);
-% plot((1:fn) * frame_shift / fs, formant_estimates');
-% xlabel('时间 (秒)');
-% ylabel('频率 (Hz)');
-% title('共振峰频率随时间变化');
-% legend('F1', 'F2', 'F3');
+subplot(3,1,3);
+plot((1:fn) * frame_shift / fs, formant_estimates');
+xlabel('时间 (秒)');ylabel('频率 (Hz)');
+title('共振峰频率随时间变化');
+legend('F1', 'F2', 'F3');
 
