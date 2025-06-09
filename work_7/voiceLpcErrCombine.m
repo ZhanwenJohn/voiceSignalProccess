@@ -4,7 +4,7 @@ clc;
 close all;
 
 %% 读取音频信号
-[x, fs] = audioread("Hello.wav");
+[x, fs] = audioread("test.wav");
 x = x - mean(x);   % 去均值
 x = x / max(abs(x));   % 归一化
 
@@ -66,13 +66,13 @@ sound(outspeech, fs);
 figure;
 % 原始语音信号
 subplot(2, 1, 1);
-plot(time, x);
+plot(time, x, 'k');
 title('原始语音信号');
 xlabel('时间/s');
 ylabel('幅值');
 % 基于LPC合成的语音信号
 subplot(2, 1, 2);
-plot(time, outspeech);
+plot(time, outspeech, 'k');
 title('基于LPC合成的语音信号');
 xlabel('时间/s');
 ylabel('幅值');
