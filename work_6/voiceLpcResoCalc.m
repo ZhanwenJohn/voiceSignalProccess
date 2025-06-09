@@ -12,7 +12,7 @@ y = y - mean(y);
 
 u = filter([1 -.99], 1, y);  % 预加重
 wlen = length(u);  % 帧长
-p = 10;  % LPC阶数
+p = 12;  % LPC阶数
 a = lpc(u, p);  % 求出LPC系数
 
 % 计算频率响应，设置为257个频率点（即包括0和fs/2）
