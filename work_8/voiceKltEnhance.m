@@ -8,8 +8,9 @@ x = x / max(abs(x));
 SNR = 10;                          % 设置信噪比（单位 dB）
 signal = Gnoisegen(x, SNR);        % 添加白噪声
 snr1 = SNR_singlech(x, signal);    % 初始 SNR
+sound(signal, fs);
 %% === 分帧 ===
-wlen = 512; inc = 128;
+wlen = 450; inc = 150;
 win = hamming(wlen);
 x_framed = buffer(signal, wlen, wlen - inc, 'nodelay');
 [~, fn] = size(x_framed);
@@ -41,12 +42,18 @@ end
 output_klt = overlapAdd(X_klt_raw, wlen, inc);
 output_final = overlapAdd(X_klt_wiener, wlen, inc);
 output_final = output_final / max(abs(output_final));
-%% === 可视化 ===
+%% === 绘图 ===
 t = (0:length(x)-1) / fs;
 figure;
 subplot(4,1,1); plot(t, x); title("原始语音信号"); ylabel("幅度"); grid on;
 subplot(4,1,2); plot(t, signal); title(sprintf("加噪语音信号 (SNR = %.2f dB)", snr1)); ylabel("幅度"); grid on;
 subplot(4,1,3); plot(t, output_klt(1:length(x))); title("KLT增强后语音"); ylabel("幅度"); grid on;
 subplot(4,1,4); plot(t, output_final(1:length(x))); title("Wiener滤波后语音"); ylabel("幅度"); xlabel("时间/s"); grid on;
+nfft = 1024;
+figure;
+subplot(4,1,1); spectrogram(x, hann(256), 128, nfft, fs, 'yaxis'); title('原始语音'); grid on;
+subplot(4,1,2); spectrogram(signal, hann(256), 128, nfft, fs, 'yaxis'); title('加噪语音信号'); grid on;
+subplot(4,1,3); spectrogram(output_klt(1:length(x)), hann(256), 128, nfft, fs, 'yaxis'); title('KLT增强后语音'); grid on;
+subplot(4,1,4); spectrogram(output_final(1:length(x)), hann(256), 128, nfft, fs, 'yaxis'); title('Wiener滤波后语音'); grid on;
 %% === 播放增强语音 ===
 sound(output_final, fs);
